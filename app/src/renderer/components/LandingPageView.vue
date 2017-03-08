@@ -5,8 +5,7 @@
     </form>
     <ul>
       <li v-for="item in items">
-        <a @click="function() {console.log(123)}">
-        <!-- <a :href="item['resolved_url']" @click="function() {console.log(123)}"> -->
+        <a @click="openURL(item['resolved_url'])">
           <span v-text="item['resolved_title']"></span>
         </a>
       </li>
@@ -53,6 +52,11 @@
           tag: parsed.tag
         });
       }, 300)
+    },
+    methods: {
+      openURL(url) {
+        this.$electron.remote.shell.openExternal(url);
+      }
     },
     mounted() {
       const {ipcRenderer} = this.$electron;
