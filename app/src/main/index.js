@@ -109,7 +109,6 @@ ipcMain.on('get-all:req', ({sender}) => {
 });
 
 ipcMain.on('get-list:req', ({sender}, obj) => {
-  console.log(obj);
   if (!obj.tag) {
     return;
   }
@@ -121,14 +120,7 @@ ipcMain.on('get-list:req', ({sender}, obj) => {
   Promise.all(promises).then(responses => {
     const items = responses.reduce((result, res = {}) => {
       const json = JSON.parse(res.body);
-      // console.log(res);
-      // console.log(res.body);
-      // console.log('---');
-      // console.log(res.body.list);
-      // console.log(Object.keys(res.body));
-      console.log('---');
       result = result.concat(Object.values(get(json, 'list', {})));
-      console.log(result);
       return result;
     }, []);
 
@@ -137,4 +129,14 @@ ipcMain.on('get-list:req', ({sender}, obj) => {
   .catch(err => {
     console.log(err);
   })
+});
+
+ipcMain.on('delete:req', ({sender}, {id, idx}) => {
+  pocket.delete(id)
+    .then(() => {
+      sender.send('delete:res', idx);
+    })
+    .catch(err => {
+      console.log(err);
+    })
 });

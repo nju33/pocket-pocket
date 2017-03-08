@@ -4,12 +4,12 @@
       <input class="search" type="text" v-model="searchText"/>
     </form>
     <ul class="list">
-      <li class="item" v-for="item in items">
+      <li class="item" v-for="(item,idx) in items">
         <div class="control">
           <button class="button button-tag">
             <Octicon name="tag" scale="0.9"/>
           </button>
-          <button class="button button-trashcan">
+          <button class="button button-trashcan" @click="deleteItem({id: item['item_id'], idx})">
             <Octicon name="trashcan" scale="0.9"/>
           </button>
         </div>
@@ -68,6 +68,9 @@
     methods: {
       openURL(url) {
         this.$electron.remote.shell.openExternal(url);
+      },
+      deleteItem(id) {
+        this.$electron.ipcRenderer.send('delete:req', id);
       }
     },
     mounted() {
@@ -83,7 +86,11 @@
 
       this.$electron.ipcRenderer.on('get-list:res', (ev, items) => {
         this.items = items;
-      })
+      });
+
+      this.$electron.ipcRenderer.on('delete:res', (ev, idx) => {
+        this.items.splice(idx, 1);
+      });
     }
   }
 </script>

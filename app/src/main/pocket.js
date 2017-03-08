@@ -1,6 +1,7 @@
 import {BrowserWindow} from 'electron';
 import querystring from 'querystring';
 import got from 'got';
+import qs from 'qs';
 
 function api([string]) {
   return `https://getpocket.com/v3/${string}`;
@@ -85,6 +86,19 @@ class Pocket {
         code: this.code
       }
     });
+  }
+
+  delete(id) {
+    return got.get(api`send?` + querystring.stringify({
+      'consumer_key': '64406-4c7a024e50c8098e804dcf84',
+      'access_token': this.accessToken,
+      actions: JSON.stringify([
+        {
+          action: 'delete',
+          'item_id': id
+        }
+      ])
+    }));
   }
 }
 

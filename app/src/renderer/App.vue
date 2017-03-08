@@ -49,5 +49,6 @@ button {
   border: none;
   background: transparent;
   cursor: pointer;
+  outline: none;
 }
 </style>
