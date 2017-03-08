@@ -12,28 +12,42 @@
 </script>
 
 <style>
-  @import url(https://fonts.googleapis.com/css?family=Lato:300);
+body {
+  margin: 0;
+  line-height: 1.5;
+  min-height: 100vh;
+  background: #f8f8f8;
+  font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", "Noto Sans Japanese", "ヒラギノ角ゴ ProN W3", Hiragino Kaku Gothic ProN, Arial, Meiryo, sans-serif;
+  font-size: 14px;
+}
 
-  * {
-    margin: 0;
-    padding: 0;
-  }
+ul {
+  list-style:none;
+  margin:0;
+  padding:0;
+}
 
-  html,
-  body { height: 100%; }
+a {
+  color: inherit;
+  text-decoration: none;
+  transition: .2s cubic-bezier(0.455, 0.03, 0.515, 0.955);
+  cursor: pointer;
+}
 
-  body {
-    align-items: center;
-    background:
-      radial-gradient(
-        ellipse at center,
-        rgba(255, 255, 255, 1) 0%,
-        rgba(229, 229, 229, .85) 100%
-      );
-    background-position: center;
-    display: flex;
-    font-family: Lato, Helvetica, sans-serif;
-    justify-content: center;
-    text-align: center;
-  }
+a:hover {
+  color: #ee4056;
+}
+
+input,
+textarea {
+  box-sizing: border-box;
+  font-size: inherit;
+  color: inherit;
+}
+
+button {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+}
 </style>
