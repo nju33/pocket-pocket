@@ -1,0 +1,19 @@
+{
+  "name": "pocket-pocket",
+  "version": "0.0.0",
+  "description": "An electron-vue project",
+  "main": "./dist/main.js",
+  "dependencies": {
+    "fisea": "^0.0.1",
+    "fuse.js": "^2.6.2",
+    "got": "^6.7.1",
+    "lodash": "^4.17.4",
+    "vue": "^2.1.10",
+    "vue-electron": "^1.0.6",
+    "vue-resource": "^1.0.3",
+    "vue-router": "^2.1.2",
+    "vuex": "^2.1.1"
+  },
+  "devDependencies": {},
+  "author": "nju33 <jun.sasaki@mvrck.co.jp>"
+}
