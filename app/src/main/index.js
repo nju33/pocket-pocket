@@ -98,12 +98,18 @@ app.on('activate', () => {
 //   sender.send('get-info:res', pocket);
 // });
 
-ipcMain.on('get-all:req', ({sender}) => {
-  pocket.getAll()
+ipcMain.on('get-all:req', ({sender}, data = {}) => {
+  pocket.getAll(data)
     .then(res => {
+      if (data.offset) {
+        console.log('get-all:update:res');
+        return sender.send('get-all:update:res', JSON.parse(res.body));
+      }
+      console.log('get-all:res');
       sender.send('get-all:res', JSON.parse(res.body));
     })
     .catch(err => {
+      console.log(err);
       sender.send('onerror', err);
     })
 });

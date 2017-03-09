@@ -25,13 +25,24 @@ class Pocket {
     }));
   }
 
-  getAll() {
-    const query = querystring.stringify({
+  getAll({offset = null}) {
+    console.log('offset ' + offset);
+
+    const data = {
       'consumer_key': '64406-4c7a024e50c8098e804dcf84',
       'access_token': this.accessToken,
       detailType: 'complete',
-      state: 'all'
-    });
+      state: 'all',
+      sort: 'newest',
+      count: 200
+    };
+
+    if (offset !== null) {
+      Object.assign(data, {offset});
+    }
+    console.log(data);
+
+    const query = querystring.stringify(data);
     return got.get(api`get` + `?${query}`);
   }
 

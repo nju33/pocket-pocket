@@ -58,6 +58,7 @@
   import Fuse from 'fuse.js';
   import Fisea from 'fisea';
   import debounce from 'lodash/debounce';
+  // import throttle from 'lodash/throttle';
   import Octicon from 'vue-octicon/components/Octicon';
   import 'vue-octicon/icons/tag';
   import 'vue-octicon/icons/trashcan';
@@ -77,6 +78,8 @@
     name: 'landing-page',
     data() {
       return {
+        // scrollHeight: 0,
+
         items: [],
         searchText: '',
         newTag: '',
@@ -135,7 +138,16 @@
       },
       deleteItem(id) {
         this.$electron.ipcRenderer.send('delete:req', id);
-      }
+      },
+
+      handleScroll: debounce(function (ev) {
+        const maxHeight = document.body.scrollHeight;
+        if (100 > maxHeight - (document.body.scrollTop + innerHeight)) {
+          this.$electron.ipcRenderer.send('get-all:req', {
+            offset: this.items.length
+          });
+        }
+      }, 500)
     },
     mounted() {
       const {ipcRenderer} = this.$electron;
@@ -145,10 +157,33 @@
       // });
       ipcRenderer.send('get-all:req');
       ipcRenderer.on('get-all:res', (ev, body) => {
-        this.items = Object.values(body.list);
+        console.log(body.list);
+        const items = Object.values(body.list)
+        if (items.length === 0) {
+          this.stop = true;
+        } else {
+          this.stop = false;
+        }
+        this.items = items;
+      });
+
+      ipcRenderer.on('get-all:update:res', (ev, body) => {
+        console.log(body.list);
+        const items = Object.values(body.list)
+        if (items.length === 0) {
+          this.stop = true;
+        } else {
+          this.stop = false;
+        }
+        this.items = this.items.concat(items);
       });
 
       this.$electron.ipcRenderer.on('get-list:res', (ev, items) => {
+        if (items.length === 0) {
+          this.stop = true;
+        } else {
+          this.stop = false;
+        }
         console.log(items);
         this.items = items;
       });
@@ -171,6 +206,12 @@
 
         this.newTag = '';
       });
+    },
+    created() {
+      window.addEventListener('scroll', this.handleScroll, false);
+    },
+    destroyed() {
+      window.removeEventListener('scroll', this.handleScroll, false)
     }
   }
 </script>
