@@ -6,16 +6,45 @@
     <ul class="list">
       <li class="item" v-for="(item,idx) in items">
         <div class="control">
-          <button class="button button-tag">
-            <Octicon name="tag" scale="0.9"/>
-          </button>
           <button class="button button-trashcan" @click="deleteItem({id: item['item_id'], idx})">
             <Octicon name="trashcan" scale="0.9"/>
           </button>
+          <button class="button button-tag" :class="{active: editing === idx}" @click="editTag(idx)">
+            <Octicon name="tag" scale="0.9"/>
+          </button>
         </div>
-        <a class="link" @click="openURL(item['resolved_url'])">
-          <span v-text="item['resolved_title']"></span>
-        </a>
+        <div class="main" :class="{active: editing === idx}">
+          <a class="main-inner link" @click="openURL($item['resolved_url'])">
+            <span v-text="item['resolved_title']"></span>
+          </a>
+          <div class="main-inner tag-editor-form">
+            <transition name="tag-editor">
+              <div class="tag-editor" v-if="editing === idx">
+                <div v-for="tag in getTags(item)">
+                  <button class="tag-button" v-text="tag"></button>
+                </div>
+                <div class="tag-button-container"
+                     :class="{active: openingEditor === idx}">
+                  <input class="tag-input" type="text" v-if="openingEditor === idx"
+                         v-model="newTag">
+                  <button v-if="openingEditor === idx"
+                          :class="{disabled: !newTag}"
+                          class="tag-button" @click="updateTag(item, newTag)">
+                    <Octicon name="rocket" scale="0.9"/>
+                  </button>
+                  <button v-if="openingEditor === idx"
+                          class="tag-button" @click="closeTagEditer(idx)">
+                    <Octicon name="x" scale="0.9"/>
+                  </button>
+                  <button  v-if="openingEditor !== idx"
+                           class="tag-button" @click="openTagEditer(idx)">
+                    <Octicon name="plus" scale="0.9"/>
+                  </button>
+                </div>
+              </div>
+            </transition>
+          </div>
+        </div>
       </li>
     </ul>
   </div>
@@ -30,8 +59,11 @@
   import Fisea from 'fisea';
   import debounce from 'lodash/debounce';
   import Octicon from 'vue-octicon/components/Octicon';
-  import 'vue-octicon/icons/tag'
-  import 'vue-octicon/icons/trashcan'
+  import 'vue-octicon/icons/tag';
+  import 'vue-octicon/icons/trashcan';
+  import 'vue-octicon/icons/plus';
+  import 'vue-octicon/icons/rocket';
+  import 'vue-octicon/icons/x';
 
   const fisea = new Fisea(['tag', 'url', 'title'])
 
@@ -46,7 +78,11 @@
     data() {
       return {
         items: [],
-        searchText: ''
+        searchText: '',
+        newTag: '',
+
+        editing: false,
+        openingEditor: false
       };
     },
     watch: {
@@ -69,6 +105,34 @@
       openURL(url) {
         this.$electron.remote.shell.openExternal(url);
       },
+      editTag(idx) {
+        if (this.editing === idx) {
+          this.editing = false;
+        } else {
+          this.editing = idx;
+        }
+      },
+      openTagEditer(idx) {
+        if (this.openingEditor === idx) {
+          this.openingEditor = false;
+        } else {
+          this.openingEditor = idx;
+        }
+      },
+      closeTagEditer(idx) {
+        this.openingEditor = false;
+      },
+      updateTag(item, newTag) {
+        const tags = newTag.split(' ');
+        this.$electron.ipcRenderer.send('add-tags:req', {
+          item_id: item['item_id'],
+          tags
+        });
+      },
+      getTags(item) {
+        const updatedTags = item._tags || []
+        return Object.keys(item.tags).concat(updatedTags);
+      },
       deleteItem(id) {
         this.$electron.ipcRenderer.send('delete:req', id);
       }
@@ -85,11 +149,27 @@
       });
 
       this.$electron.ipcRenderer.on('get-list:res', (ev, items) => {
+        console.log(items);
         this.items = items;
       });
 
       this.$electron.ipcRenderer.on('delete:res', (ev, idx) => {
         this.items.splice(idx, 1);
+      });
+
+      this.$electron.ipcRenderer.on('add-tags:res', () => {
+        if (this.openingEditor === false) {
+          return;
+        }
+
+        const tags = this.newTag.split(' ');
+        const item = this.items[this.openingEditor];
+        if (typeof item._tags === 'undefined') {
+          item._tags = [];
+        }
+        item._tags = item._tags.concat(tags);
+
+        this.newTag = '';
       });
     }
   }
@@ -126,6 +206,11 @@
 
 .item {
   display: flex;
+  align-items: flex-start;
+  background: #fff;
+  position: relative;
+  z-index: 1;
+  overflow: hidden;
 }
 
 .item:nth-child(n+2) {
@@ -140,6 +225,7 @@
   align-items: center;
   padding: 0 .5em;
   box-sizing: border-box;
+  margin-top: 6px;
 }
 
 .button {
@@ -151,13 +237,124 @@
   transition: .2s cubic-bezier(0.455, 0.03, 0.515, 0.955);
 }
 
-.button:hover svg {
+.button:hover svg,
+.button.active svg {
   fill: #ee4056;
 }
 
-.link {
+.main {
   flex: auto;
+  flex-wrap: wrap;
+  display: flex;
+  transition: 1s cubic-bezier(0.77, 0, 0.175, 1);
+  /*overflow: hidden;*/
+  height: 2em;
+}
+
+.main.active {
+  height: 4em;
+}
+
+/*.main-enter.main-enter {
+  flex: 10 1 100%;
+}
+
+.main-enter-to.main-enter-to {
+
+}*/
+
+/*.main-leave-to.main-leave-to {
+  flex: 1 10 0%;
+}*/
+
+.main-inner {
+  flex: auto;
+  width: 100%;
+  height: 2em;
+  box-sizing: border-box;
+  overflow: hidden;
+  min-width: 0;
+  padding: .5em 0;
+  line-height: .9;
+}
+
+.link {
   display: inline-block;
-  padding: .2em 0;
+}
+
+.tag-editor-form {
+  background: #ee4056;
+  margin-left: -80px;
+  width: 100vw;
+  display: flex;
+  align-items: center;
+  padding: 0 .5em;
+}
+
+.tag-editor {
+  transition: 1s cubic-bezier(0.77, 0, 0.175, 1);
+  opacity: 1;
+  display: flex;
+  align-items: center;
+}
+
+.tag-editor-enter {
+  opacity: 0;
+}
+
+.tag-editor-enter .tag-input {
+  flex: 0 0 0;
+  max-width: 0;
+}
+
+.tag-editor-leave-to {
+  opacity: 1;
+}
+
+.tag-button {
+  font-size: .8em;
+  padding: .2em .3em;
+  background: #fde9eb;
+  border-radius: 3px;
+  color: #474747;
+  margin: 0 .3em;
+}
+
+.tag-button svg {
+  height: 1em;
+  width: 1em;
+  fill: #474747;
+  border-radius: 3px;
+}
+
+.tag-button-container {
+  background: #fde9eb;
+  display: flex;
+  border-radius: 3px;
+  transition: .2s cubic-bezier(0.77, 0, 0.175, 1);
+}
+
+.tag-button-container.active {
+  width: 13em;
+}
+
+.tag-input {
+  flex: 0 2 100%;
+  margin-right: 0em;
+  border: none;
+  background: #fde9eb;
+  outline: none;
+  border-radius: 3px;
+  font-size: .8em;
+  padding: 0 1em 0 .5em;
+  box-sizing: border-box;
+  max-width: 100%;
+}
+
+.tag-button-container .tag-button {
+  /*position: absolute;
+  right: 0;
+  bottom: 0;*/
+  margin: 0;
 }
 </style>

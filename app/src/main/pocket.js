@@ -29,6 +29,7 @@ class Pocket {
     const query = querystring.stringify({
       'consumer_key': '64406-4c7a024e50c8098e804dcf84',
       'access_token': this.accessToken,
+      detailType: 'complete',
       state: 'all'
     });
     return got.get(api`get` + `?${query}`);
@@ -38,9 +39,9 @@ class Pocket {
     const query = querystring.stringify({
       'consumer_key': '64406-4c7a024e50c8098e804dcf84',
       'access_token': this.accessToken,
+      detailType: 'complete',
       tag
     });
-    console.log(query);
     return got.get(api`get` + `?${query}`);
   }
 
@@ -98,6 +99,16 @@ class Pocket {
           'item_id': id
         }
       ])
+    }));
+  }
+
+  addTags(data) {
+    return got.get(api`send?` + querystring.stringify({
+      'consumer_key': '64406-4c7a024e50c8098e804dcf84',
+      'access_token': this.accessToken,
+      actions: JSON.stringify([Object.assign(data, {
+        action: 'tags_add'
+      })])
     }));
   }
 }

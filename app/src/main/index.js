@@ -1,6 +1,6 @@
-'use strict'
+'use strict';
 
-import {app, protocol, BrowserWindow, ipcMain} from 'electron'
+import {app, protocol, BrowserWindow, ipcMain} from 'electron';
 import get from 'lodash/get';
 import pocket from './pocket';
 
@@ -139,4 +139,14 @@ ipcMain.on('delete:req', ({sender}, {id, idx}) => {
     .catch(err => {
       console.log(err);
     })
+});
+
+ipcMain.on('add-tags:req', ({sender}, data) => {
+  pocket.addTags(data)
+    .then(() => {
+      sender.send('add-tags:res')
+    })
+    .catch(err => {
+      console.log(err)
+    });
 });
