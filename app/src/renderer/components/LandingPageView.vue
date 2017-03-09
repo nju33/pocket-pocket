@@ -71,6 +71,8 @@
   import 'vue-octicon/icons/x';
   import Hai from '@nju33/hai';
 
+  Hai.config.theme = 'light';
+
   const fisea = new Fisea(['tag', 'url', 'title'])
 
   export default {

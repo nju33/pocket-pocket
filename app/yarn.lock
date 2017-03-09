@@ -2,9 +2,9 @@
 # yarn lockfile v1
 
 
-"@nju33/hai@^0.1.0":
-  version "0.1.0"
-  resolved "https://registry.yarnpkg.com/@nju33/hai/-/hai-0.1.0.tgz#987ab56dd6fb86cd63d23d7992ee12c7c12e9d50"
+"@nju33/hai@^0.2.0":
+  version "0.2.0"
+  resolved "https://registry.yarnpkg.com/@nju33/hai/-/hai-0.2.0.tgz#49f03bce36a46714d9b93bbac3864790fe3bdf84"
   dependencies:
     redux "^3.6.0"
 
