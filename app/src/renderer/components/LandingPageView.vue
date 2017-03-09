@@ -20,11 +20,8 @@
           <div class="main-inner tag-editor-form">
             <transition name="tag-editor">
               <div class="tag-editor" v-if="editing === idx">
-                <div v-for="tag in getTags(item)">
-                  <button class="tag-button" v-text="tag"></button>
-                </div>
                 <div class="tag-button-container"
-                     :class="{active: openingEditor === idx}">
+                    :class="{active: openingEditor === idx}">
                   <input class="tag-input" type="text" v-if="openingEditor === idx"
                          v-model="newTag">
                   <button v-if="openingEditor === idx"
@@ -36,10 +33,17 @@
                           class="tag-button" @click="closeTagEditer(idx)">
                     <Octicon name="x" scale="0.9"/>
                   </button>
-                  <button  v-if="openingEditor !== idx"
-                           class="tag-button" @click="openTagEditer(idx)">
+                  <button v-if="openingEditor !== idx"
+                          class="tag-button" @click="openTagEditer(idx)">
                     <Octicon name="plus" scale="0.9"/>
                   </button>
+                </div>
+                <div v-for="tag in getTags(item)">
+                  <button class="tag-button" v-text="tag"></button>
+                </div>
+                <div class="tag-button-container"
+                     :class="{active: openingEditor === idx}">
+
                 </div>
               </div>
             </transition>
@@ -330,6 +334,7 @@
   display: flex;
   align-items: center;
   padding: 0 .5em;
+  overflow: hidden;
 }
 
 .tag-editor {
@@ -337,6 +342,9 @@
   opacity: 1;
   display: flex;
   align-items: center;
+  overflow: auto;
+  padding-bottom: 20px;
+  margin-top: 20px;
 }
 
 .tag-editor-enter {
