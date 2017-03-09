@@ -4,6 +4,7 @@
   "description": "An electron-vue project",
   "main": "./dist/main.js",
   "dependencies": {
+    "@nju33/hai": "^0.1.0",
     "fisea": "^0.0.1",
     "fuse.js": "^2.6.2",
     "got": "^6.7.1",

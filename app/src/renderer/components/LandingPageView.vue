@@ -6,7 +6,7 @@
     <ul class="list">
       <li class="item" v-for="(item,idx) in items">
         <div class="control">
-          <button class="button button-trashcan" @click="deleteItem({id: item['item_id'], idx})">
+          <button class="button button-trashcan" @click="deleteItem($event, {id: item['item_id'], idx})">
             <Octicon name="trashcan" scale="0.9"/>
           </button>
           <button class="button button-tag" :class="{active: editing === idx}" @click="editTag(idx)">
@@ -69,6 +69,7 @@
   import 'vue-octicon/icons/plus';
   import 'vue-octicon/icons/rocket';
   import 'vue-octicon/icons/x';
+  import Hai from '@nju33/hai';
 
   const fisea = new Fisea(['tag', 'url', 'title'])
 
@@ -83,6 +84,16 @@
     data() {
       return {
         // scrollHeight: 0,
+        deleteHai: new Hai([
+          {
+            name: 'delete',
+            message: 'Delete?',
+            button: [
+              ['Yes', next => next(Hai.DONE)],
+              ['No', next => next(Hai.CANCEL)]
+            ]
+          }
+        ]),
 
         items: [],
         searchText: '',
@@ -140,8 +151,13 @@
         const updatedTags = item._tags || []
         return Object.keys(item.tags).concat(updatedTags);
       },
-      deleteItem(id) {
-        this.$electron.ipcRenderer.send('delete:req', id);
+      deleteItem(ev, data) {
+        this.deleteHai.open(ev.currentTarget)
+          .then(answers => {
+            if (answers.delete) {
+              this.$electron.ipcRenderer.send('delete:req', data);
+            }
+          });
       },
 
       handleScroll: debounce(function (ev) {
