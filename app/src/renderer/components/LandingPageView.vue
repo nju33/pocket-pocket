@@ -106,6 +106,7 @@
     watch: {
       searchText: debounce(function (val) {
         if (val === '') {
+          this.$electron.ipcRenderer.send('get-all:req');
           return;
         }
 
