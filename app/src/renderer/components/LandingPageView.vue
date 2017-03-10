@@ -202,7 +202,7 @@
       },
 
       handleScroll: debounce(function (ev) {
-        if (this.searchText !== '') {
+        if (this.searchText !== '' || this.stop) {
           return;
         }
 
@@ -221,7 +221,7 @@
       ipcRenderer.send('get-all:req');
       ipcRenderer.on('get-all:res', (ev, body) => {
         console.log(body.list);
-        const items = Object.values(body.list)
+        const items = Object.values(body.list);
         if (items.length === 0) {
           this.stop = true;
         } else {
@@ -242,12 +242,6 @@
       });
 
       this.$electron.ipcRenderer.on('get-list:res', (ev, items) => {
-        if (items.length === 0) {
-          this.stop = true;
-        } else {
-          this.stop = false;
-        }
-        console.log(items);
         this.items = items;
       });
 
