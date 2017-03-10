@@ -113,6 +113,32 @@ class Pocket {
     }));
   }
 
+  favorite(data) {
+    return got.get(api`send?` + querystring.stringify({
+      'consumer_key': '64406-4c7a024e50c8098e804dcf84',
+      'access_token': this.accessToken,
+      actions: JSON.stringify([
+        {
+          action: 'favorite',
+          ...data
+        }
+      ])
+    }))
+  }
+
+  unfavorite(data) {
+    return got.get(api`send?` + querystring.stringify({
+      'consumer_key': '64406-4c7a024e50c8098e804dcf84',
+      'access_token': this.accessToken,
+      actions: JSON.stringify([
+        {
+          action: 'unfavorite',
+          ...data
+        }
+      ])
+    }));
+  }
+
   addTags(data) {
     return got.get(api`send?` + querystring.stringify({
       'consumer_key': '64406-4c7a024e50c8098e804dcf84',

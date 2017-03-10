@@ -147,6 +147,26 @@ ipcMain.on('delete:req', ({sender}, {id, idx}) => {
     })
 });
 
+ipcMain.on('favorite:req', ({sender}, {idx, isFavorite, data}) => {
+  if (isFavorite) {
+    pocket.unfavorite(data)
+      .then(() => {
+        sender.send('unfavorite:res', idx);
+      })
+      .catch(err => {
+        console.log(err);
+      })
+  } else {
+    pocket.favorite(data)
+      .then(() => {
+        sender.send('favorite:res', idx);
+      })
+      .catch(err => {
+        console.log(err);
+      })
+  }
+});
+
 ipcMain.on('add-tags:req', ({sender}, data) => {
   pocket.addTags(data)
     .then(() => {

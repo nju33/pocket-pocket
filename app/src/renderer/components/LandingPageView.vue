@@ -6,10 +6,15 @@
     <ul class="list">
       <li class="item" v-for="(item,idx) in items">
         <div class="control">
-          <button class="button button-trashcan" @click="deleteItem($event, {id: item['item_id'], idx})">
+          <button class="button button-trashcan" title="Delete" @click="deleteItem($event, {id: item['item_id'], idx})">
             <Octicon name="trashcan" scale="0.9"/>
           </button>
-          <button class="button button-tag" :class="{active: editing === idx}" @click="editTag(idx)">
+          {{item.favorite}}
+          <button class="button button-trashcan" :class="{active: Number(item.favorite)}"
+                  title="Favorite" @click="favoriteItem({idx, isFavorite: Boolean(Number(item.favorite)), data: {'item_id': item['item_id']}})">
+            <Octicon name="ruby" scale="0.9"/>
+          </button>
+          <button class="button button-tag" title="Edit tag" :class="{active: editing === idx}" @click="editTag(idx)">
             <Octicon name="tag" scale="0.9"/>
           </button>
         </div>
@@ -63,6 +68,7 @@
   // import throttle from 'lodash/throttle';
   import Octicon from 'vue-octicon/components/Octicon';
   import 'vue-octicon/icons/tag';
+  import 'vue-octicon/icons/ruby';
   import 'vue-octicon/icons/trashcan';
   import 'vue-octicon/icons/plus';
   import 'vue-octicon/icons/rocket';
@@ -83,7 +89,6 @@
     name: 'landing-page',
     data() {
       return {
-        // scrollHeight: 0,
         deleteHai: new Hai([
           {
             name: 'delete',
@@ -166,8 +171,13 @@
           });
       },
 
+      favoriteItem(obj) {
+        this.$electron.ipcRenderer.send('favorite:req', obj);
+      },
+
       handleScroll: debounce(function (ev) {
         const maxHeight = document.body.scrollHeight;
+
         if (100 > maxHeight - (document.body.scrollTop + innerHeight)) {
           this.$electron.ipcRenderer.send('get-all:req', {
             offset: this.items.length
@@ -218,6 +228,16 @@
         this.items.splice(idx, 1);
       });
 
+      this.$electron.ipcRenderer.on('favorite:res', (ev, idx) => {
+        console.log(123);
+        this.items[idx].favorite = 1;
+      });
+
+      this.$electron.ipcRenderer.on('unfavorite:res', (ev, idx) => {
+        console.log(9999);
+        this.items[idx].favorite = 0;
+      });
+
       this.$electron.ipcRenderer.on('add-tags:res', () => {
         if (this.openingEditor === false) {
           return;
@@ -248,6 +268,12 @@
   padding-left: 80px;
   height: 38px;
   border-bottom: 1px solid #e3e3e3;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 999;
+  background: #f8f8f8;
 }
 
 .search {
@@ -266,6 +292,7 @@
 }
 
 .list {
+  padding-top: 38px;
   /*margin: 1em 0;*/
   /*background-image: linear-gradient(to right, #fff 80px, transparent 80px);*/
   /*min-height: calc(100vh - 40px);*/
