@@ -295,7 +295,7 @@
 .search {
   height: 38px;
   border: none;
-  padding: .3em .5em;
+  padding: .3em 2.7em .3em .5em;
   outline: none;
   width: 100%;
   border-left: 1px solid #e3e3e3;
@@ -312,12 +312,21 @@
   right: .5em;
   bottom: 50%;
   transform: translateY(50%);
+  color: #aaa;
 }
 
 .flags:before {
   content: '/';
+  font-weight: bold;
 }
 
+.filter {
+  color: inherit;
+  transition: .2s cubic-bezier(0.77, 0, 0.175, 1);
+  cursor: pointer;
+}
+
+.filter:hover,
 .filter.active {
   color: #ee4056;
 }
