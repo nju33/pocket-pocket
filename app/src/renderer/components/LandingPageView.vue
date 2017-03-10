@@ -1,9 +1,9 @@
 <template>
   <div>
-    <form class="form">
+    <form class="form" @submit="handleSubmit">
       <input class="search" type="text" v-model="searchText"/>
       <div class="flags">
-        <button class="filter favorite" :class="{active: filters.includes('favorite')}"
+        <button type="button" class="filter favorite" :class="{active: filters.includes('favorite')}"
                 title="Filter by favorites" @click="filterByFavorites">f</button>
       </div>
     </form>
@@ -27,7 +27,7 @@
           </a>
           <div class="main-inner tag-editor-form">
             <transition name="tag-editor">
-              <div class="tag-editor" v-if="editing === idx">
+              <div class="tag-editor" :class="{active: editing === idx}" v-if="editing === idx">
                 <transition name="tag-button-container">
                   <div v-if="openingEditor === idx" class="tag-button-container active">
                     <input class="tag-input" type="text" v-model="newTag">
@@ -43,7 +43,7 @@
                 </transition>
                 <transition name="tag-button-container">
                   <div v-if="openingEditor !== idx" class="tag-button-container inactive">
-                    <button class="tag-button" @click="openTagEditer(idx)">
+                    <button class="tag-button" @click="openTagEditer($event, idx)">
                       <Octicon name="plus" scale="0.9"/>
                     </button>
                   </div>
@@ -145,21 +145,29 @@
       }, 300)
     },
     methods: {
+      handleSubmit() {
+        const url = this.items[0]['resolved_url'];
+        this.openURL(url);
+      },
       openURL(url) {
         this.$electron.remote.shell.openExternal(url);
       },
       editTag(idx) {
         if (this.editing === idx) {
           this.editing = false;
+          this.openingEditor = false;
         } else {
           this.editing = idx;
         }
       },
-      openTagEditer(idx) {
+      openTagEditer(ev, idx) {
         if (this.openingEditor === idx) {
           this.openingEditor = false;
         } else {
           this.openingEditor = idx;
+          setTimeout(() => {
+            document.querySelector('.tag-editor.active .tag-input').focus();
+          }, 0)
         }
       },
       closeTagEditer(idx) {
@@ -384,7 +392,7 @@
   flex: auto;
   flex-wrap: wrap;
   display: flex;
-  transition: 1s cubic-bezier(0.77, 0, 0.175, 1);
+  transition: .3s cubic-bezier(0.77, 0, 0.175, 1);
   /*overflow: hidden;*/
   height: 2em;
 }
@@ -431,7 +439,7 @@
 }
 
 .tag-editor {
-  transition: 1s cubic-bezier(0.77, 0, 0.175, 1);
+  transition: .3s cubic-bezier(0.77, 0, 0.175, 1);
   opacity: 1;
   display: flex;
   align-items: center;
