@@ -14,7 +14,7 @@
           </button>
         </div>
         <div class="main" :class="{active: editing === idx}">
-          <a class="main-inner link" @click="openURL($item['resolved_url'])">
+          <a class="main-inner link" @click="openURL(item['resolved_url'])">
             <span v-text="item['resolved_title']"></span>
           </a>
           <div class="main-inner tag-editor-form">
