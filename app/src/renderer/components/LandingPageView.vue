@@ -20,30 +20,28 @@
           <div class="main-inner tag-editor-form">
             <transition name="tag-editor">
               <div class="tag-editor" v-if="editing === idx">
-                <div class="tag-button-container"
-                    :class="{active: openingEditor === idx}">
-                  <input class="tag-input" type="text" v-if="openingEditor === idx"
-                         v-model="newTag">
-                  <button v-if="openingEditor === idx"
-                          :class="{disabled: !newTag}"
-                          class="tag-button" @click="updateTag(item, newTag)">
-                    <Octicon name="rocket" scale="0.9"/>
-                  </button>
-                  <button v-if="openingEditor === idx"
-                          class="tag-button" @click="closeTagEditer(idx)">
-                    <Octicon name="x" scale="0.9"/>
-                  </button>
-                  <button v-if="openingEditor !== idx"
-                          class="tag-button" @click="openTagEditer(idx)">
-                    <Octicon name="plus" scale="0.9"/>
-                  </button>
-                </div>
-                <div v-for="tag in getTags(item)">
-                  <button class="tag-button" v-text="tag"></button>
-                </div>
-                <div class="tag-button-container"
-                     :class="{active: openingEditor === idx}">
-
+                <transition name="tag-button-container">
+                  <div v-if="openingEditor === idx" class="tag-button-container active">
+                    <input class="tag-input" type="text" v-model="newTag">
+                    <button :class="{disabled: !newTag}" class="tag-button"
+                      @click="updateTag(item, newTag)">
+                        <Octicon name="rocket" scale="0.9"/>
+                    </button>
+                    <button v-if="openingEditor === idx"
+                            class="tag-button" @click="closeTagEditer(idx)">
+                      <Octicon name="x" scale="0.9"/>
+                    </button>
+                  </div>
+                </transition>
+                <transition name="tag-button-container">
+                  <div v-if="openingEditor !== idx" class="tag-button-container inactive">
+                    <button class="tag-button" @click="openTagEditer(idx)">
+                      <Octicon name="plus" scale="0.9"/>
+                    </button>
+                  </div>
+                </transition>
+                <div class="tag-list">
+                  <button class="tag-item" v-text="tag"  v-for="tag in getTags(item)"></button>
                 </div>
               </div>
             </transition>
@@ -151,6 +149,11 @@
       },
       getTags(item) {
         const updatedTags = item._tags || []
+
+        if (typeof item.tags === 'undefined') {
+          return updatedTags;
+        }
+
         return Object.keys(item.tags).concat(updatedTags);
       },
       deleteItem(ev, data) {
@@ -398,11 +401,56 @@
   background: #fde9eb;
   display: flex;
   border-radius: 3px;
-  transition: .2s cubic-bezier(0.77, 0, 0.175, 1);
+  transition:
+    width .3s cubic-bezier(0.77, 0, 0.175, 1),
+    opacity .2s cubic-bezier(0.77, 0, 0.175, 1);
+  position: relative;
+  width: 1.5em;
+  height: .9em;
+  padding: .2em;
+  overflow: hidden;
+  flex: 1 0 auto;
+  /*width: 10em;*/
 }
 
 .tag-button-container.active {
-  width: 13em;
+  /*min-width: 10em;*/
+  /*min-width: 10em;*/
+  width: 10em;
+}
+
+.tag-button-container-enter.active {
+  width: 0;
+  opacity: 0;
+}
+
+.tag-button-container-leave-to.active {
+  transition:
+    /*min-width .2s cubic-bezier(0.77, 0, 0.175, 1),*/
+    width .2s cubic-bezier(0.77, 0, 0.175, 1),
+    opacity .3s cubic-bezier(0.77, 0, 0.175, 1);
+  /*min-width: 0em;*/
+  padding: .2em 0;
+  width: 0;
+  /*flex: 0 0 auto;*/
+  opacity: 0;
+}
+
+.tag-button-container-enter.inactive {
+  transition:
+    width .2s cubic-bezier(0.77, 0, 0.175, 1)
+    opacity .3s cubic-bezier(0.77, 0, 0.175, 1) .6s;
+  width: 0;
+  opacity: 0;
+}
+
+.tag-button-container-leave-to.inactive {
+  transition:
+    width .2s cubic-bezier(0.77, 0, 0.175, 1),
+    opacity .3s cubic-bezier(0.77, 0, 0.175, 1);
+  padding: .2em 0;
+  width: 0;
+  opacity: 0;
 }
 
 .tag-input {
@@ -419,9 +467,43 @@
 }
 
 .tag-button-container .tag-button {
-  /*position: absolute;
-  right: 0;
-  bottom: 0;*/
   margin: 0;
+  transition: .2s cubic-bezier(0.77, 0, 0.175, 1);
+  opacity: 1;
 }
+
+.tag-button-container-enter .tag-button {
+  opacity: 0;
+}
+
+.tag-button {
+  position: absolute;
+  bottom: 48%;
+  transform: translateY(50%);
+}
+
+.tag-button-container.active .tag-button:nth-of-type(1) {
+  right: 2em;
+}
+
+.tag-button-container.active .tag-button:nth-of-type(2) {
+  right: .5em;
+}
+
+.tag-button-container.inactive .tag-button:nth-of-type(1) {
+  right: 50%;
+  transform: translate(50%, 50%);
+}
+
+.tag-list {
+  display: flex;
+}
+
+.tag-item {
+  background: #fbe9eb;
+  padding: .2em .3em;
+  border-radius: 3px;
+  margin: 0 .3em;
+}
+
 </style>
