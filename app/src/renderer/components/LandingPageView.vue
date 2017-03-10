@@ -2,9 +2,13 @@
   <div>
     <form class="form">
       <input class="search" type="text" v-model="searchText"/>
+      <div class="flags">
+        <button class="filter favorite" :class="{active: filters.includes('favorite')}"
+                title="Filter by favorites" @click="filterByFavorites">f</button>
+      </div>
     </form>
     <ul class="list">
-      <li class="item" v-for="(item,idx) in items">
+      <li class="item" v-if="filters.length === 0 || (filters.includes('favorite') && Boolean(Number(item.favorite)))" v-for="(item, idx) in items">
         <div class="control">
           <button class="button button-trashcan" title="Delete" @click="deleteItem($event, {id: item['item_id'], idx})">
             <Octicon name="trashcan" scale="0.9"/>
@@ -76,7 +80,13 @@
 
   Hai.config.theme = 'light';
 
-  const fisea = new Fisea(['tag', 'url', 'title'])
+  const fisea = new Fisea([
+    'title',
+    't',
+    'tag',
+    'u',
+    'url',
+  ]);
 
   export default {
     components: {
@@ -100,6 +110,7 @@
         ]),
 
         items: [],
+        filters: [],
         searchText: '',
         newTag: '',
 
@@ -160,6 +171,13 @@
         }
 
         return Object.keys(item.tags).concat(updatedTags);
+      },
+      filterByFavorites() {
+        if (this.filters.includes('favorite')) {
+          this.filters.splice(this.filters.indexOf('favorite'), 1);
+        } else {
+          this.filters.push('favorite');
+        }
       },
       deleteItem(ev, data) {
         this.deleteHai.open(ev.currentTarget)
@@ -263,6 +281,7 @@
 .form {
   -webkit-app-region: drag;
   padding-left: 80px;
+  box-sizing: border-box;
   height: 38px;
   border-bottom: 1px solid #e3e3e3;
   position: fixed;
@@ -286,6 +305,21 @@
 
 .search:focus {
   border-color: #ee4056;
+}
+
+.flags {
+  position: absolute;
+  right: .5em;
+  bottom: 50%;
+  transform: translateY(50%);
+}
+
+.flags:before {
+  content: '/';
+}
+
+.filter.active {
+  color: #ee4056;
 }
 
 .list {
