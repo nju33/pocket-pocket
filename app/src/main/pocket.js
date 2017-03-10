@@ -13,14 +13,26 @@ class Pocket {
     };
     this.redirectURI = 'pocket-pocket://regirect/';
     // this.redirectURI = 'https://google.com';
+    this.consumerKey = null;
     this.code = null;
     this.window = null;
   }
 
+  get requiredParams() {
+    return {
+      'consumer_key': this.consumerKey,
+      'access_token': this.accessToken
+    };
+  }
+
+
+  setConsumerKey(consumerKey) {
+    this.consumerKey = consumerKey;
+  }
+
   log() {
     console.log(JSON.stringify({
-      'consumer_key': '64406-4c7a024e50c8098e804dcf84',
-      'access_token': this.accessToken
+      ...this.requiredParams,
     }));
   }
 
@@ -28,8 +40,7 @@ class Pocket {
     console.log('offset ' + offset);
 
     const data = {
-      'consumer_key': '64406-4c7a024e50c8098e804dcf84',
-      'access_token': this.accessToken,
+      ...this.requiredParams,
       detailType: 'complete',
       state: 'all',
       count: 200
@@ -46,8 +57,7 @@ class Pocket {
 
   getBy(data) {
     const query = querystring.stringify({
-      'consumer_key': '64406-4c7a024e50c8098e804dcf84',
-      'access_token': this.accessToken,
+      ...this.requiredParams,
       detailType: 'complete',
       ...data
     });
@@ -56,8 +66,7 @@ class Pocket {
 
   getByTag(tag) {
     const query = querystring.stringify({
-      'consumer_key': '64406-4c7a024e50c8098e804dcf84',
-      'access_token': this.accessToken,
+      ...this.requiredParams,
       detailType: 'complete',
       tag
     });
@@ -67,27 +76,26 @@ class Pocket {
   getRequestToken() {
     return got.post(api`oauth/request`, {
       body: {
-        'consumer_key': '64406-4c7a024e50c8098e804dcf84',
+        'consumer_key': this.consumerKey,
         'redirect_uri': 'pocket-pocket://redirect'
       }
     });
   }
 
-  createAuthWindow() {
-    this.window = new BrowserWindow({
-      webPreferences: {
-        nodeIntegration: false
-      },
-      width: 971,
-      height: 600
-    });
-    this.window.loadURL([
+  createAuthWindow(win) {
+    // this.window = new BrowserWindow({
+      // webPreferences: {
+      //   nodeIntegration: false
+      // },
+    //   width: 971,
+    //   height: 600
+    // });
+    // this.window.loadURL([
+    win.loadURL([
       'https://getpocket.com/auth/authorize',
       `?request_token=${this.code}&`,
       `redirect_uri=${encodeURIComponent(this.redirectURI)}`
     ].join(''));
-
-
   }
 
   closeWindow() {
@@ -100,9 +108,15 @@ class Pocket {
   }
 
   auth() {
+    console.log({
+      body: {
+        'consumer_key': this.consumerKey,
+        code: this.code
+      }
+    });
     return got.post(api`oauth/authorize`, {
       body: {
-        'consumer_key': '64406-4c7a024e50c8098e804dcf84',
+        'consumer_key': this.consumerKey,
         code: this.code
       }
     });
@@ -123,8 +137,7 @@ class Pocket {
 
   favorite(data) {
     return got.get(api`send?` + querystring.stringify({
-      'consumer_key': '64406-4c7a024e50c8098e804dcf84',
-      'access_token': this.accessToken,
+      ...this.requiredParams,
       actions: JSON.stringify([
         {
           action: 'favorite',
@@ -136,8 +149,7 @@ class Pocket {
 
   unfavorite(data) {
     return got.get(api`send?` + querystring.stringify({
-      'consumer_key': '64406-4c7a024e50c8098e804dcf84',
-      'access_token': this.accessToken,
+      ...this.requiredParams,
       actions: JSON.stringify([
         {
           action: 'unfavorite',
@@ -149,8 +161,7 @@ class Pocket {
 
   addTags(data) {
     return got.get(api`send?` + querystring.stringify({
-      'consumer_key': '64406-4c7a024e50c8098e804dcf84',
-      'access_token': this.accessToken,
+      ...this.requiredParams,
       actions: JSON.stringify([Object.assign(data, {
         action: 'tags_add'
       })])

@@ -1,65 +1,66 @@
 'use strict';
 
+import fs from 'fs';
+import path from 'path';
 import {app, protocol, BrowserWindow, ipcMain} from 'electron';
 import get from 'lodash/get';
 import intersectionBy from 'lodash/intersectionBy';
 import Fuse from 'fuse.js/src/fuse';
+import notifier from 'node-notifier';
 import pocket from './pocket';
 import createMenu from './menu';
 
-let mainWindow
+const nc = new notifier.NotificationCenter();
+const configFile = path.join(app.getPath('home'), '.pocket-pocket.js');
 const winURL = process.env.NODE_ENV === 'development'
   ? `http://localhost:${require('../../../config').port}`
   : `file://${__dirname}/index.html`
 
-function createWindow () {
-  /**
-   * Initial window options
-   */
+let mainWindow = null;
 
+function createWindow () {
   mainWindow = new BrowserWindow({
     height: 309,
     width: 500,
     titleBarStyle: 'hidden-inset'
-  })
+  });
 
-  mainWindow.loadURL(winURL)
+  // mainWindow.loadURL(winURL)
 
   mainWindow.on('closed', () => {
     mainWindow = null
-  })
-
-  // eslint-disable-next-line no-console
-  // console.log('mainWindow opened')
+  });
 }
 
-protocol.registerStandardSchemes(['pocket-pocket']);
-app.on('ready', () => {
-  // handler = {
-  //  method: 'GET',
-  //  referrer: '',
-  //  url: 'pocket-pocket://redirect/'
-  // }
-  protocol.registerHttpProtocol('pocket-pocket', handler => {
-    if (handler.url !== pocket.redirectURI) {
-      return;
-    }
+function prepare(configFile) {
+  try {
+    fs.accessSync(configFile, fs.constants.F_OK);
+    const contents = fs.readFileSync(configFile, 'utf-8');
+    const data = JSON.parse(contents);
+    pocket.setConsumerKey(data['consumer_key']);
+    run();
+  } catch (err) {
+    const opts = {
+      title: 'Pocket Pocket',
+      message: 'Please specify pocket consumer_key',
+      reply: true
+    };
+    nc.notify(opts, (err, res, {
+      activationType: type, activationValue: consumerKey
+    }) => {
+      if (type !== 'replied') {
+        return;
+      }
 
-    pocket.closeWindow();
+      pocket.setConsumerKey(consumerKey);
+      const data = JSON.stringify({'consumer_key': consumerKey});
+      fs.writeFileSync(configFile, data);
+      run();
+    });
+  }
+}
 
-    pocket.auth()
-      .then(res => {
-        const matches = res.body.match(/access_token=([^&]+)&username=(.+)$/);
-        if (matches) {
-          pocket.accessToken = matches[1];
-          pocket.username = decodeURIComponent(matches[2]);
-        }
-        createWindow();
-      })
-      .catch(err => {
-        console.log(err);
-      })
-  });
+function run() {
   pocket.getRequestToken()
     .then(res => {
       const code = res.body.replace('code=', '');
@@ -75,14 +76,54 @@ app.on('ready', () => {
         })
         .catch(err => {
           if (err.statusCode === pocket.errorCode.FORBIDDEN) {
-            pocket.createAuthWindow()
+            if (mainWindow === null) {
+              createWindow();
+            }
+            pocket.createAuthWindow(mainWindow);
           }
         });
     })
     .catch(err => {
-      console.log(err);
+      nc.notify({
+        title: 'Pocket Pocket',
+        message: err.message,
+        timeout: 8
+      }, () => {
+        fs.unlinkSync(configFile);
+        prepare(configFile);
+      });
     })
-    
+}
+
+protocol.registerStandardSchemes(['pocket-pocket']);
+app.on('ready', () => {
+  protocol.registerHttpProtocol('pocket-pocket', handler => {
+    if (handler.url !== pocket.redirectURI) {
+      return;
+    }
+
+    pocket.auth()
+      .then(res => {
+        const matches = res.body.match(/access_token=([^&]+)&username=(.+)$/);
+        if (matches) {
+          pocket.accessToken = matches[1];
+          pocket.username = matches[2];
+        }
+
+        mainWindow.loadURL(winURL);
+      })
+      .catch(err => {
+        if (err.statusCode === pocket.errorCode.FORBIDDEN) {
+          if (mainWindow === null) {
+            createWindow();
+          }
+          pocket.createAuthWindow(mainWindow);
+        }
+      });
+  });
+
+  prepare(configFile);
+
   createMenu();
 })
 
@@ -94,13 +135,9 @@ app.on('window-all-closed', () => {
 
 app.on('activate', () => {
   if (mainWindow === null) {
-    createWindow()
+    prepare(configFile);
   }
 })
-//
-// ipcMain.on('get-info:req', ({sender}) => {
-//   sender.send('get-info:res', pocket);
-// });
 
 ipcMain.on('get-all:req', ({sender}, data = {}) => {
   pocket.getAll(data)

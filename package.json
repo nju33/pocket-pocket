@@ -5,6 +5,7 @@
   "scripts": {
     "build": "node tasks/release.js",
     "build:clean": "cross-env PLATFORM_TARGET=clean node tasks/release.js",
+    "prebuild:darwin": "[ ! -e app.asar ] && asar pack . app.asar --unpack \"./node_modules/node-notifier/vendor/**\"",
     "build:darwin": "cross-env PLATFORM_TARGET=darwin node tasks/release.js",
     "build:linux": "cross-env PLATFORM_TARGET=linux node tasks/release.js",
     "build:mas": "cross-env PLATFORM_TARGET=mas node tasks/release.js",
@@ -18,6 +19,7 @@
   "author": "Greg Holguin <simulatedgreg@gmail.com>",
   "license": "MIT",
   "devDependencies": {
+    "asar": "^0.13.0",
     "babel-core": "^6.23.1",
     "babel-loader": "^6.4.0",
     "babel-plugin-transform-runtime": "^6.23.0",
@@ -52,6 +54,7 @@
   "dependencies": {
     "fuse.js": "^2.6.2",
     "got": "^6.7.1",
-    "lodash": "^4.17.4"
+    "lodash": "^4.17.4",
+    "node-notifier": "^5.0.2"
   }
 }
