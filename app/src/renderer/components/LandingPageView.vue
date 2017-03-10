@@ -9,7 +9,6 @@
           <button class="button button-trashcan" title="Delete" @click="deleteItem($event, {id: item['item_id'], idx})">
             <Octicon name="trashcan" scale="0.9"/>
           </button>
-          {{item.favorite}}
           <button class="button button-trashcan" :class="{active: Number(item.favorite)}"
                   title="Favorite" @click="favoriteItem({idx, isFavorite: Boolean(Number(item.favorite)), data: {'item_id': item['item_id']}})">
             <Octicon name="ruby" scale="0.9"/>
@@ -229,12 +228,10 @@
       });
 
       this.$electron.ipcRenderer.on('favorite:res', (ev, idx) => {
-        console.log(123);
         this.items[idx].favorite = 1;
       });
 
       this.$electron.ipcRenderer.on('unfavorite:res', (ev, idx) => {
-        console.log(9999);
         this.items[idx].favorite = 0;
       });
 
