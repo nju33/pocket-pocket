@@ -293,7 +293,7 @@
 }
 
 .search {
-  height: 39px;
+  height: 38px;
   border: none;
   padding: .3em .5em;
   outline: none;
