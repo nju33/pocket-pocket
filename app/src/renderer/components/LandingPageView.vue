@@ -8,7 +8,7 @@
       </div>
     </form>
     <ul class="list">
-      <li class="item" v-if="filters.length === 0 || (filters.includes('favorite') && Boolean(Number(item.favorite)))" v-for="(item, idx) in items">
+      <li class="item" v-if="filters.length === 0 || (filters.includes('favorite') && Boolean(Number(item.favorite)))" v-for="(item, idx) in sortedItems">
         <div class="control">
           <button class="button button-trashcan" title="Delete" @click="deleteItem($event, {id: item['item_id'], idx})">
             <Octicon name="trashcan" scale="0.9"/>
@@ -64,6 +64,7 @@
   import CurrentPage from './LandingPageView/CurrentPage'
   import Links from './LandingPageView/Links'
   import Versions from './LandingPageView/Versions'
+  import get from 'lodash/get';
   import got from 'got';
   import Fuse from 'fuse.js';
   import Fisea from 'fisea';
@@ -118,6 +119,13 @@
         openingEditor: false
       };
     },
+    computed: {
+      sortedItems() {
+        return this.items.sort((a, b) => {
+          return Number(b['item_id']) - Number(a['item_id']);
+        });
+      }
+    },
     watch: {
       searchText: debounce(function (val) {
         if (val === '') {
@@ -128,10 +136,11 @@
         const parsed = fisea.parse(val);
 
         this.$electron.ipcRenderer.send('get-list:req', {
-          _: parsed._,
-          title: parsed.title,
-          url: parsed.url,
-          tag: parsed.tag
+          title: get(parsed, 'title', [])
+                  .concat(get(parsed, 't', []))
+                  .concat(get(parsed, '_', [])),
+          url: get(parsed, 'url', []).concat(get(parsed, 'u', [])),
+          tag: get(parsed, 'tag', []).concat(get(parsed, 't', []))
         });
       }, 300)
     },
@@ -193,6 +202,10 @@
       },
 
       handleScroll: debounce(function (ev) {
+        if (this.searchText !== '') {
+          return;
+        }
+
         const maxHeight = document.body.scrollHeight;
 
         if (100 > maxHeight - (document.body.scrollTop + innerHeight)) {
@@ -205,9 +218,6 @@
     mounted() {
       const {ipcRenderer} = this.$electron;
 
-      // ipcRenderer.send('get-info:req');
-      // ipcRenderer.on('get-info:res', (ev, pocket) {
-      // });
       ipcRenderer.send('get-all:req');
       ipcRenderer.on('get-all:res', (ev, body) => {
         console.log(body.list);
