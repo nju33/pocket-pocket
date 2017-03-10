@@ -33,8 +33,12 @@ let rendererConfig = {
       {
         test: /\.js$/,
         use: 'babel-loader',
-        include: [ path.resolve(__dirname, 'app/src/renderer') ],
-        exclude: /node_modules/
+        include: [
+          path.resolve(__dirname, 'app/src/renderer'),
+          path.resolve('app/node_modules/vue-octicon')
+        ],
+        // include: [ path.resolve(__dirname, 'app/src/renderer') ],
+        // exclude: /node_modules/
       },
       {
         test: /\.json$/,
@@ -97,7 +101,7 @@ let rendererConfig = {
   resolve: {
     alias: {
       'components': path.join(__dirname, 'app/src/renderer/components'),
-      'renderer': path.join(__dirname, 'app/src/renderer')
+      'renderer': path.join(__dirname, 'app/src/renderer'),
     },
     extensions: ['.js', '.vue', '.json', '.css', '.node'],
     modules: [

@@ -3,8 +3,9 @@
 import {app, protocol, BrowserWindow, ipcMain} from 'electron';
 import get from 'lodash/get';
 import intersectionBy from 'lodash/intersectionBy';
+import Fuse from 'fuse.js/src/fuse';
 import pocket from './pocket';
-import Fuse from 'fuse.js';
+import createMenu from './menu';
 
 let mainWindow
 const winURL = process.env.NODE_ENV === 'development'
@@ -81,7 +82,8 @@ app.on('ready', () => {
     .catch(err => {
       console.log(err);
     })
-  // createWindow();
+    
+  createMenu();
 })
 
 app.on('window-all-closed', () => {

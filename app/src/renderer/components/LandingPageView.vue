@@ -66,7 +66,7 @@
   import Versions from './LandingPageView/Versions'
   import get from 'lodash/get';
   import got from 'got';
-  import Fuse from 'fuse.js';
+  import Fuse from 'fuse.js/src/fuse';
   import Fisea from 'fisea';
   import debounce from 'lodash/debounce';
   // import throttle from 'lodash/throttle';

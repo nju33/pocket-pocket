@@ -53,7 +53,10 @@ let mainConfig = {
     extensions: ['.js', '.json', '.node'],
     modules: [
       path.join(__dirname, 'app/node_modules')
-    ]
+    ],
+    alias: {
+      'fusejs': path.resolve(__dirname, 'node_modules/fuse.js/src/'),
+    }
   },
   target: 'electron-main'
 }

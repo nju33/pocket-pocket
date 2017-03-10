@@ -1,7 +1,6 @@
 import {BrowserWindow} from 'electron';
 import querystring from 'querystring';
 import got from 'got';
-import qs from 'qs';
 
 function api([string]) {
   return `https://getpocket.com/v3/${string}`;
