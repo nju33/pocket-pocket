@@ -43,8 +43,12 @@ function prepare(configFile) {
     run();
   } catch (err) {
     const opts = {
-      title: 'Pocket Pocket',
+      title: 'Pocket Pocketasldkjfsjfsdf',
       message: 'Please specify pocket consumer_key',
+      icon: path.join(
+        __dirname,
+        '../../images/notify.png'
+      ),
       reply: true
     };
     nc.notify(opts, (err, res, {
@@ -89,6 +93,10 @@ function run() {
       nc.notify({
         title: 'Pocket Pocket',
         message: err.message,
+        icon: path.join(
+          __dirname,
+          '../../images/notify.png'
+        ),
         timeout: 8
       }, () => {
         fs.unlinkSync(configFile);

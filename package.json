@@ -5,8 +5,9 @@
   "scripts": {
     "build": "node tasks/release.js",
     "build:clean": "cross-env PLATFORM_TARGET=clean node tasks/release.js",
-    "prebuild:darwin": "[ ! -e app.asar ] && asar pack . app.asar --unpack \"./node_modules/node-notifier/vendor/**\"",
+    "prebuild:darwin": "[ ! -e app.asar ] && asar pack . app.asar --unpack \"./node_modules/node-notifier/vendor/**\" ; : _",
     "build:darwin": "cross-env PLATFORM_TARGET=darwin node tasks/release.js",
+    "postbuild:darwin": "cp -r app/dist/images builds/Pocket\\ Pocket-darwin-x64/Pocket\\ Pocket.app/Contents/Resources/",
     "build:linux": "cross-env PLATFORM_TARGET=linux node tasks/release.js",
     "build:mas": "cross-env PLATFORM_TARGET=mas node tasks/release.js",
     "build:win32": "cross-env PLATFORM_TARGET=win32 node tasks/release.js",
