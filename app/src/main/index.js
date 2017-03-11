@@ -2,7 +2,7 @@
 
 import fs from 'fs';
 import path from 'path';
-import {app, protocol, BrowserWindow, ipcMain} from 'electron';
+import {app, protocol, BrowserWindow, ipcMain, globalShortcut} from 'electron';
 import get from 'lodash/get';
 import intersectionBy from 'lodash/intersectionBy';
 import Fuse from 'fuse.js/src/fuse';
@@ -99,6 +99,20 @@ function run() {
 
 protocol.registerStandardSchemes(['pocket-pocket']);
 app.on('ready', () => {
+  globalShortcut.register('CommandOrControl+Alt+P', () => {
+    if (mainWindow === null) {
+      prepare(configFile);
+      return;
+    }
+
+    if (mainWindow.isMinimized()) {
+      mainWindow.restore();
+      return;
+    }
+
+    mainWindow.focus();
+  });
+
   protocol.registerHttpProtocol('pocket-pocket', handler => {
     if (handler.url !== pocket.redirectURI) {
       return;
@@ -138,8 +152,20 @@ app.on('window-all-closed', () => {
 app.on('activate', () => {
   if (mainWindow === null) {
     prepare(configFile);
+    return;
   }
+
+  if (mainWindow.isMinimized()) {
+    mainWindow.restore();
+    return;
+  }
+
+  mainWindow.focus();
 })
+
+app.on('will-quit', () => {
+  globalShortcut.unregister('CommandOrControl+Alt+P');
+});
 
 ipcMain.on('get-all:req', ({sender}, data = {}) => {
   pocket.getAll(data)

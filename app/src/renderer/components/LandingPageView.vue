@@ -2,7 +2,7 @@
   <div>
     <div class="dragbar"></div>
     <form class="form" @submit="handleSubmit">
-      <input class="search" type="text" v-model="searchText" placeholder="title-url tag:name ..."/>
+      <input autofocus class="search" type="text" v-model="searchText" placeholder="title-url tag:name ..."/>
       <div class="flags">
         <button type="button" class="filter favorite" :class="{active: filters.includes('favorite')}"
                 title="Filter by favorites" @click="filterByFavorites">f</button>
