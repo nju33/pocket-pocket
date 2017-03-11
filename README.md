@@ -35,6 +35,10 @@ Log in with your Pocket account.
 
 You are now ready 💯
 
+### Shortcut
+
+- `CommandOrControl+Alt+P`: You can open, restore and focus the Window
+
 ## Build Setup
 
 ``` bash
