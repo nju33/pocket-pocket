@@ -39,6 +39,10 @@ You are now ready 💯
 
 - `CommandOrControl+Alt+P`: You can open, restore and focus the Window
 
+## Download
+
+From the [release page](https://github.com/nju33/pocket-pocket/releases/latest)
+
 ## Build Setup
 
 ``` bash
