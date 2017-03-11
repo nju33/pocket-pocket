@@ -1,4 +1,4 @@
-import {app, Menu} from 'electron';
+import {app, Menu, shell} from 'electron';
 
 export default function () {
   const template = [
@@ -82,7 +82,17 @@ export default function () {
       submenu: [
         {
           label: 'Learn More',
-          click () { require('electron').shell.openExternal('http://electron.atom.io') }
+          click () {
+            const url = 'https://nju33.work/electron-apps/pocket-pocket';
+            shell.openExternal(url);
+          }
+        },
+        {
+          label: 'Github',
+          click() {
+            const url = 'https://github.com/nju33/pocket-pocket';
+            shell.openExternal(url);
+          }
         }
       ]
     }
