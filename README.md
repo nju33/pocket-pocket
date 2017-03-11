@@ -22,7 +22,7 @@ Copy the consumer key of the application you just made.
 
 ### Open Pocket Pocket
 
-First you will be asked for the consumer key so paste it.
+First you will be asked for the consumer key so paste it. (This is the first time, or only when `~/.pocket-pocket.js` is missing or wrong. `~/.pocket-pocket.js` is the configuration file and the contents are JSON of this feeling (`{consumer_key:  ...}`).)
 
 ![notify1](https://github.com/nju33/pocket-pocket/blob/master/readme/notify1.png?raw=true)
 
