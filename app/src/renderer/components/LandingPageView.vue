@@ -1,7 +1,8 @@
 <template>
   <div>
+    <div class="dragbar"></div>
     <form class="form" @submit="handleSubmit">
-      <input class="search" type="text" v-model="searchText"/>
+      <input class="search" type="text" v-model="searchText" placeholder="title-url tag:name ..."/>
       <div class="flags">
         <button type="button" class="filter favorite" :class="{active: filters.includes('favorite')}"
                 title="Filter by favorites" @click="filterByFavorites">f</button>
@@ -23,7 +24,7 @@
         </div>
         <div class="main" :class="{active: editing === idx}">
           <a class="main-inner link" @click="openURL(item['resolved_url'])">
-            <span v-text="item['resolved_title']"></span>
+            <span class="main-title" v-text="item['resolved_title']"></span>
           </a>
           <div class="main-inner tag-editor-form">
             <transition name="tag-editor">
@@ -290,18 +291,22 @@
 </script>
 
 <style scoped>
+.dragbar {
+  height: 38px;
+  width: 100%;
+}
 .form {
   -webkit-app-region: drag;
   padding-left: 80px;
   box-sizing: border-box;
   height: 38px;
-  border-bottom: 1px solid #e3e3e3;
+  /*border-bottom: 1px solid #e3e3e3;*/
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   z-index: 999;
-  background: #f8f8f8;
+  background: #222;
 }
 
 .search {
@@ -310,7 +315,7 @@
   padding: .3em 2.7em .3em .5em;
   outline: none;
   width: 100%;
-  border-left: 1px solid #e3e3e3;
+  /*border-left: 1px solid #e3e3e3;*/
   border-bottom: 1px solid #e3e3e3;
   transition: .2s cubic-bezier(0.455, 0.03, 0.515, 0.955);
 }
@@ -344,23 +349,27 @@
 }
 
 .list {
-  padding-top: 38px;
+  /*padding-top: 38px;*/
   /*margin: 1em 0;*/
-  /*background-image: linear-gradient(to right, #fff 80px, transparent 80px);*/
+  background: linear-gradient(to right, #222 80px, transparent 80px);
   /*min-height: calc(100vh - 40px);*/
 }
 
 .item {
   display: flex;
   align-items: flex-start;
-  background: #fff;
+  /*background: #fff;*/
   position: relative;
   z-index: 1;
   overflow: hidden;
 }
 
+.item:nth-child(even) .main-inner.link {
+  background: #fff;
+}
+
 .item:nth-child(n+2) {
-  border-top: 1px solid #e3e3e3;
+  /*border-top: 1px solid #e3e3e3;*/
 }
 
 .control {
@@ -376,10 +385,11 @@
 
 .button {
   flex: auto;
+  padding: .15em;
 }
 
 .button svg {
-  fill: #474747;
+  fill: #f8f8f8;
   transition: .2s cubic-bezier(0.455, 0.03, 0.515, 0.955);
 }
 
@@ -388,13 +398,30 @@
   fill: #ee4056;
 }
 
+.button-tag {
+  position: relative;
+}
+
+.button-tag.active:before {
+  content: '';
+  position: absolute;
+  right: 50%;
+  bottom: -.3em;
+  transform: translateX(50%);
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 0 .5em .5em .5em;
+  border-color: transparent transparent #de5a5f transparent;
+}
+
 .main {
   flex: auto;
   flex-wrap: wrap;
   display: flex;
   transition: .3s cubic-bezier(0.77, 0, 0.175, 1);
-  /*overflow: hidden;*/
   height: 2em;
+  width: 50%;
 }
 
 .main.active {
@@ -420,11 +447,19 @@
   box-sizing: border-box;
   overflow: hidden;
   min-width: 0;
-  padding: .5em 0;
   line-height: .9;
 }
 
-.link {
+.main-title {
+  display: inline-block;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  width: 100%;
+}
+
+.main-inner.link {
+  padding: .5em;
   display: inline-block;
 }
 
