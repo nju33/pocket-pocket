@@ -43,7 +43,7 @@ function prepare(configFile) {
     run();
   } catch (err) {
     const opts = {
-      title: 'Pocket Pocketasldkjfsjfsdf',
+      title: 'Pocket Pocket',
       message: 'Please specify pocket consumer_key',
       icon: path.join(
         __dirname,
